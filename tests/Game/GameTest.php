@@ -5,6 +5,10 @@ namespace BinaryStudioAcademyTests\Game;
 use PHPUnit\Framework\TestCase;
 use BinaryStudioAcademy\Game\Game;
 use BinaryStudioAcademyTests\Stubs\StableRandom;
+use BinaryStudioAcademy\Game\Helpers\Math;
+use BinaryStudioAcademy\Services\MessagesService;
+use BinaryStudioAcademy\Game\Factories\BattleShipFactory;
+use BinaryStudioAcademy\Game\GameCommands;
 
 final class GameTest extends TestCase
 {
@@ -13,15 +17,20 @@ final class GameTest extends TestCase
      */
     public function test_game(array $commands): void
     {
+        $math = new Math();
+        $messagesService = new MessagesService();
+        $battleShipFactory = new BattleShipFactory();
+        $gameCommands = new GameCommands($battleShipFactory, $math, $messagesService);
+
         $game = new Game(
-            new StableRandom(1.0)
+            new StableRandom(1.0),
+            $gameCommands
         );
 
         $gameTester = new GameTester($game);
 
         foreach ($commands as [ $command, $expectedOutput]) {
             $output = $gameTester->run($command);
-
             $this->assertEquals(trim($expectedOutput), trim($output));
         }
     }
